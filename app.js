@@ -7,29 +7,37 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const path = require('path');
 
-// Requiring databases and models
+// Database
 const db = require('./config/mongoose-connection');
+
+// Models (optional to require here)
 const userSchema = require('./models/user-model');
 const productSchema = require('./models/product-mode');
 const ownersSchema = require('./models/owners-model');
 
-// Requiring Routes
+// Routes
 const ownersRouter = require('./routes/ownersRouter');
 const productRouter = require('./routes/productRouter');
 const usersRouter = require('./routes/usersRouter');
+const indexRouter= require('./routes/indexRouter');
 
-// For EJS
+// View Engine
 app.set('view engine', 'ejs');
+
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 
-// Defining Routes
+// Routes usage
+app.use('/', indexRouter);
 app.use('/owners', ownersRouter);
 app.use('/product', productRouter);
 app.use('/users', usersRouter);
 
+
+// Server
 app.listen(3000, () => {
   console.log('🚀 Server running on port 3000');
 });
