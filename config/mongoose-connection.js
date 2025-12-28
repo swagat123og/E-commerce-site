@@ -1,13 +1,17 @@
+const mongoose = require('mongoose');
+const debug = require('debug');
+const config=require('config')
+const dbgr = debug('development:mongoose');
 
-const mongoose=require('mongoose');
 
 mongoose
-.connect("mongodb://127.0.0.1:27017/baggers")
-.then(function(){
-    console.log("DataBase Connected");
-})
-.catch(function(err){
-    console.log(err);
-})
+  .connect(`${config.get("MONGODB_URI")}/baggers`)
+  .then(() => {
+    dbgr("✅ Database Connected");
+  })
+  .catch((err) => {
+    dbgr("❌ Database Error:", err);
+  });
 
 module.exports = mongoose.connection;
+// baggers
