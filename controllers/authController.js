@@ -8,43 +8,46 @@ module.exports.registerUser = async function (req, res) {
         let { password, email, fullname } = req.body;
         let registeredUser = await userSchema.findOne({ email: email });
         if (registeredUser) return res.status(401).send("you already registerd");
-        bcrypt.genSalt(10, function (err, salt) {
-            bcrypt.hash(password, salt, async function (err, hash) {
-                if (err) return res.status(503).send(err.message);
-                else {
-                    let registeredUser = await userSchema.create({
-                        password: hash, email, fullname
-                    })
-                    // let token = await jwt.sign({ email, id: registeredUser._id }, "passkey",
-                    //  { expiresIn: '1h' });
-                    let token = generateToken(registeredUser);
-                    res.cookie("token", token);
-                    res.send("user created ok succesfully");
-
-                }
-            });
-        });
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(password, salt);
+        let createdUser = await userSchema.create({
+            password: hash, email, fullname
+        })
+        let token = generateToken(createdUser);
+        res.cookie("token", token);
+        res.redirect("/");
     } catch (err) {
         console.log(err.message);
+        res.status(500).send(err.message);
     }
 
 }
 
 module.exports.loginUser = async function (req, res) {
-    let { password, email } = req.body;
-    let loginUser = await userSchema.findOne({ email: email });
-    if (!loginUser) return res.send("user not exits");
-    bcrypt.compare(password, loginUser.password, function (err, result) {
-     if(result){
-        let token = generateToken(loginUser);
-       res.cookie("token", token);
-       res.send("you can login");
-     } 
-     else{
-       return res.send("Some Thing Went Wrong") ;
-     }
-    });
-}
+    try {
+        let { password, email } = req.body;
+
+        let user = await userSchema.findOne({ email });
+        if (!user) {
+            req.flash("error", "User does not exist");
+            return res.redirect("/");
+        }
+
+        let isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            req.flash("error", "Invalid credentials");
+            return res.redirect("/");
+        }
+
+        let token = generateToken(user);
+        res.cookie("token", token);
+        res.redirect("/shop")
+    } catch (err) {
+        console.log(err.message);
+        res.status(500).send(err.message);
+    }
+};
+
 
 module.exports.logOut = async function(req,res){
        res.cookie("token", "");

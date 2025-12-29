@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const isLoggedIn=require('../middlewares/isLoggedIn')
 
 const {
   registerUser,
@@ -11,8 +12,8 @@ router.get('/', (req, res) => {
   res.send("Users home");
 });
 
+router.get('/logout', logOut);
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.post('/logout',logOut);
 
 module.exports = router;
