@@ -10,7 +10,7 @@ module.exports= async function(req,res,next){
     }
 
     try{
-        let decode = jwt.verify(req.cookie.token,process.env.JTW_KEY);
+        let decode = jwt.verify(req.cookies.token,process.env.JWT_KEY);
         let user = await userSchema.findOne({email:decode.email})
         .select("-password");
         req.user=user;
