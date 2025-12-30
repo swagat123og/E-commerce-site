@@ -6,7 +6,7 @@ const productSchema = require("../models/product-mode");
 
 router.get('/', (req, res) => {
     let error =req.flash("error");
-    res.render('index',{error});
+    res.render('index',{error,isLoggedIn:false});
 });
 
 router.get('/shop', async function (req, res) {
